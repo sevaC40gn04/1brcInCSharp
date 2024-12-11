@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ChallengeEntry": {
+      "commandName": "Project",
+      "commandLineArgs": "-s=2 -t=11 -b=8 -dp=C:\\_OneBRecord\\data\\Measurements2.txt"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+J;37.4
+Jo;37.4
+Wau;35.1
+Aden;30.4
+Accra;44.7
+Anadyr;-23.6
+Calgary;17.2
+Brussels;-2.4
+Hanga Roa;28.0
+Bratislava;16.9
+Panama City;23.7
+Philadelphia;23.6
+Dar es Salaam;38.1
+Salt Lake City;15.2
+Luxembourg City;-2.1
+Ho Chi Minh City;15.0
+Ho Chi Minh City2;15.0
+City of San Marino;25.4
+City of San Marino1;25.4
+City of San Marino12;25.4
+City of San Marino123;25.4
+City of San Marino1234;25.4
+City of San Marino12345;25.4
+Petropavlovsk-Kamchatsky;7.3
+Petropavlovsk-Kamchatsky1;7.3
+Las Palmas de Gran Canaria;27.2
+Las Palmas de Gran Canaria1;27.2
+Las Palmas de Gran Canaria12;27.2
+Las Palmas de Gran Canaria123;27.2
+Las Palmas de Gran Canaria1234;27.2
+Las Palmas de Gran Canaria12345;27.2
+Las Palmas de Gran Canaria123456;27.2
