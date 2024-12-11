@@ -181,6 +181,10 @@ Once the logic started to work, I was very curious to check speed difference bet
 To try it out, I picked a step to find a separator between city name and temperature - character ';'. In existing implementation, it seemed to be straight forward to 'optimize'. Using bits manipulation, and 'Lzcnt.X64.LeadingZeroCount' op, the logic to identify separator offset gave approximately 20% speed boost, at least.
 The logic processes 8 or 16 bytes. An attempt to add extra 8 bytes to logic (to handle cite name longer than 16 characters), subjectively degraded performance - since, statistically, test data set has the city names (length) from 3 to 16 byes long the most.
 
+## Mappers
+
+Where possible, use arrays vs Dictionaries - it's faster.
+
 ## Dictionary (custom)
 
 Originally, city data was accumulated in a standard Dictionary<,>.
