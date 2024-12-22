@@ -22,7 +22,7 @@ The C# fastest solution I found is here https://1brc.dev/
 I downloaded C# solution source code from the site (above), built it and using the same data file (with 1 billion temperatures measures), ran under Highest performance profile
 it processed 1B records in 2.4 secs.
 My solution processed the same 1B records in 6.7 seconds.
-These tests are run under Windows 11 (all latest updates are installed)
+These tests are run under Windows 11 (all latest updates are installed, and high performance power profile)
 
 As an addition, both solutions were run under Windows 10, virtual machine under ProxMox host.
 This machine is more powerful, installed on iCore-7 11700 (14 threads allocated for the VM)
@@ -193,8 +193,8 @@ No matter what I tried, improvement hit the wall. I experimented with Microsoft 
 I took Dictionary source code from Microsoft web site, stripped down parts I did not need and left only what was used by the main code (including collisions counter).
 Still, 17-19 seconds mark was unbreakable.
 
-Logically, a dictionary data structure is intended to process any one access operation to any element within O(1) time. The approach to find a proper data bucket is to get an 'almost unique' key (hash), where if a bucket is not empty to traverse via a bucket linked list to find proper data element (traverse takes O(M) time). If traverse happens, we say that a hash key had a collision. Less collisions happening, or none at all is better. Number of collisions depends on the 'quality of the generated key hash' - more hashes are 'similar', more collisions we have and more likely the performance goes from O(1) to O(N) overall (if all dictionary elements have the same hash and ended up in the same bucket).
-The suspect is the Hash collision.
+Logically, a dictionary data structure is intended to process any one access operation to any element within O(1) time. The approach to find a proper data bucket is to get an 'almost unique' key (hash), where if a bucket is not empty to traverse via a bucket linked list to find proper data element (traverse takes O(M) time). If traverse happens, we say that a hash key had a collision. Less collisions happening, or none at all is better. Number of collisions depends on the 'quality of the generated key hash' - more hashes are 'similar', more collisions we have and more likely the performance goes away from O(1) (to O(N) overall) (if all dictionary elements have the same hash and ended up in the same bucket).
+The suspect is identified and is - the Hash collision.
 After some experimenting, the result was surprising (well, at least for me). An integer set of keys worked with nearly 0 collisions, and string set had almost 100% collisions (on average, one collision per one access), producing respective benchmarking (below).
 
 | Method                                 | AccessTimes |       Mean |      Error |     StdDev |     Median | Ratio | RatioSD |
@@ -228,7 +228,7 @@ A city name is a byte array, though a string based key statistics can be applied
 So, what takes 3x times longer to process a string key.
 After digging Microsoft dictionary code (and debugging it), it was clear that string hash is calculated based on entirely randomized base. Withing the same dictionary instance, it will be calculated as the same value, but once the same string key added to a different dictionary instance, hash is different. The integer hash across different dictionary instances will be the same. it's understandable that string processing takes more time, but - is it a source of the big difference ?
 
-Seems that the collision fact is correlated to the nature of the key value.
+Seems that the collision fact is correlated to the nature of the key value itself.
 
 Check out unit tests (DictionaryCollisionTest) that is trying to calculate number of key hash collisions based on the nature of the key and predictability of data set.
 It contains three tests:
@@ -243,13 +243,13 @@ The produced results are as following:
 2. str key dictionary, getAccess.count=1000000 collision.count=973048
 3. int Random key dictionary, getAccess.count=1000000 collision.count=959588
 
-Seems that integer key with predictably sequential set of values produces clean O(1) access,
-any other combination pushes performance to find respective bucket to O(N) collisions. Each access op is slowed down by a collision.
+Seems that integer key with predictably sequential set of values produces clean O(1) access (no hash key collision),
+any other combination pushes performance for a O(N) access cases to O(N) collisions. Each access op is 'slowed down' by a hash key collision.
 
 A conclusion that can be made is that when a nature of the key (no matter what key's data type - integer or a string) is purely random, the generated hash value will have higher chance of collision due to (presumably) Gaussian distribution. When you control (in a sense) the distribution the collision chance is nearly none, hence, the first test result - where we control predictability (even up distribution).
 
 This conclusion (idea) was a key on how to calculate hash of the byte arrays representing city name.
-The city name itself composed out of a predictable set of bytes (ASCII codes) starting with 0x41. And statistically, the name set of the file to process, nearly unique if to analyze only first three bytes (even if it's not unique, the chance of duplications is quite low).
+The city name itself composed out of a predictable set of bytes (ASCII codes) starting with 0x41. Statistically, the name set of the file to process, nearly unique if to analyze only first three bytes (even if it's not unique, the chance of duplications is quite low).
 
 ```C#
         byte firstChar = (byte)(buffer[startIndex] - 0x41);
@@ -259,7 +259,7 @@ The city name itself composed out of a predictable set of bytes (ASCII codes) st
         var targetBucket = (firstChar << 3) + (secondChar << 2) + thirdChar;
 ```
 
-On top of that, different length names are stored in different data sets. It's just an extra quick trick to help to avoid collisions of a similar first three letters Hash codes, but different names overall.
+On top of that, different length names are stored in different data sets. It's just an extra quick trick to help to avoid collisions of a similar first three letters Hash codes, but different names overall (names that are similar starting, but have a different length overall).
 
 Once the new dictionary was designed based on this approach the final result dropped from 17-19 seconds to 7-8 range.
 
