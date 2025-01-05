@@ -172,10 +172,10 @@ respective generated code is
 00007FFA15EEF97D  imul        ecx,ecx,64h
 ```
 
-In general, LEA requires only one CPU clock cycle opposite to 3-5 cycles of iMUL (based on x86 implementation).
+In general, LEA requires one-to-three CPU clock cycle opposite to 3-5 cycles of iMUL (specific to a specific x86 implementation).
 Hardware implementation slows down execution from ADD to iMUL to iDIV.
 
-## Byte scan (byte read) opposite to LONG read
+## Byte scan (byte read) opposite to LONG read (BMI use)
 
 Once the logic started to work, I was very curious to check speed difference between byte and long (8 bytes) traverse.
 To try it out, I picked a step to find a separator between city name and temperature - character ';'. In existing implementation, it seemed to be straight forward to 'optimize'. Using bits manipulation, and 'Lzcnt.X64.LeadingZeroCount' op, the logic to identify separator offset gave approximately 20% speed boost, at least.
